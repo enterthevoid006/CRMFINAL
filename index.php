@@ -36,9 +36,11 @@ if (!isset($_SESSION['user_id']) && !in_array($page, $public_pages)) {
 }
 
 // ---------------------------------------------------------
-// 4️⃣ Construction du contrôleur à appeler
+// 4️⃣ Conversion du nom de page en format StudlyCase
+//     Exemple : ajouter_tache → AjouterTacheController
 // ---------------------------------------------------------
-$controllerName = ucfirst($page) . 'Controller';
+$studly = str_replace(' ', '', ucwords(str_replace(['-', '_'], ' ', $page)));
+$controllerName = $studly . 'Controller';
 $controllerPath = __DIR__ . "/Controllers/{$controllerName}.php";
 
 // ---------------------------------------------------------
@@ -49,27 +51,25 @@ if (file_exists($controllerPath)) {
 
     if (class_exists($controllerName)) {
 
-        // ⚙️ Vérifie si le constructeur du contrôleur attend $conn
+        // ⚙️ Vérifie si le constructeur du contrôleur attend la connexion
         $reflection = new ReflectionClass($controllerName);
         $constructor = $reflection->getConstructor();
 
         if ($constructor && $constructor->getNumberOfParameters() > 0) {
-            // Le contrôleur attend une connexion → on l’injecte
-            $controller = new $controllerName($conn);
+            $controller = new $controllerName($conn); // Injection de la connexion
         } else {
-            // Sinon, on l’instancie simplement
             $controller = new $controllerName();
         }
 
-        // ✅ Exécute la méthode index()
+        // ✅ Exécution de la méthode index()
         if (method_exists($controller, 'index')) {
             $controller->index();
         } else {
-            echo "<h2 style='color:white;'>Erreur : la méthode <code>index()</code> est manquante dans <strong>$controllerName</strong>.</h2>";
+            echo "<h2 style='color:white;'>❌ Erreur : la méthode <code>index()</code> est manquante dans <strong>$controllerName</strong>.</h2>";
         }
 
     } else {
-        echo "<h2 style='color:white;'>Erreur : la classe <strong>$controllerName</strong> n'existe pas dans le fichier.</h2>";
+        echo "<h2 style='color:white;'>❌ Erreur : la classe <strong>$controllerName</strong> n'existe pas dans le fichier.</h2>";
     }
 
 } else {
@@ -78,11 +78,25 @@ if (file_exists($controllerPath)) {
     // ---------------------------------------------------------
     http_response_code(404);
     echo "
-    <main style='font-family:Inter,sans-serif;text-align:center;padding:4rem;color:#e5e7eb;background:#0f172a;min-height:100vh;'>
-        <h1 style='font-size:3rem;color:#3b82f6;'>Erreur 404</h1>
-        <p style='font-size:1.2rem;'>Le contrôleur <strong>$controllerName</strong> est introuvable.</p>
-        <a href='index.php?page=dashboard' style='color:#60a5fa;text-decoration:none;font-weight:600;'>⬅ Retour au tableau de bord</a>
+    <main style='
+        font-family:Inter,sans-serif;
+        text-align:center;
+        padding:4rem;
+        color:#e5e7eb;
+        background:#0f172a;
+        min-height:100vh;
+    '>
+        <h1 style='font-size:3rem;color:#3b82f6;margin-bottom:1rem;'>Erreur 404</h1>
+        <p style='font-size:1.2rem;margin-bottom:2rem;'>
+            Le contrôleur <strong>$controllerName</strong> est introuvable.
+        </p>
+        <a href='index.php?page=dashboard' style='
+            color:#60a5fa;
+            text-decoration:none;
+            font-weight:600;
+        '>⬅ Retour au tableau de bord</a>
     </main>";
 }
+
 
 

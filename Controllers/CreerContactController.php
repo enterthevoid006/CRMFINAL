@@ -1,15 +1,15 @@
 <?php
-require_once __DIR__ . '/../Models/Creer_contactModel.php';
+require_once __DIR__ . '/../Models/CreerContactModel.php';
 
-class Creer_contactController {
+class CreerContactController {
     private $model;
 
     public function __construct($conn) {
-        $this->model = new Creer_contactModel($conn);
+        $this->model = new CreerContactModel($conn);
     }
 
     public function index() {
-        // Si c’est un POST → on enregistre la fiche
+        // 🔹 Si c’est un POST → on enregistre la fiche
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $data = [
                 'nom'        => trim($_POST['nom'] ?? ''),
@@ -33,7 +33,7 @@ class Creer_contactController {
             }
         }
 
-        // Sinon → on affiche simplement le formulaire (ta page HTML)
+        // 🔹 Sinon → on affiche simplement le formulaire
         require __DIR__ . '/../Views/creer_contact.view.php';
     }
 }

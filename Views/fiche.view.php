@@ -20,6 +20,30 @@ if (!function_exists('statusColor')) {
     };
   }
 }
+
+/** Helpers spécifiques aux tâches **/
+if (!function_exists('format_due_label')) {
+  function format_due_label(?string $date_echeance, ?string $statut = null): string {
+    if (!$date_echeance) return '';
+    try {
+      $today = new DateTime('today');
+      $d = new DateTime($date_echeance);
+      $isDone = strtolower((string)$statut) === 'terminée';
+
+      if (!$isDone) {
+        if ($d < $today) {
+          return '<span class="badge bg-danger"><i class="bi bi-exclamation-triangle-fill me-1"></i>En retard</span>';
+        }
+        if ($d->format('Y-m-d') === $today->format('Y-m-d')) {
+          return '<span class="badge bg-warning text-dark"><i class="bi bi-calendar-day me-1"></i>Aujourd’hui</span>';
+        }
+      }
+      return '<span class="badge bg-secondary"><i class="bi bi-calendar-event me-1"></i>'.h($d->format('d/m/Y')).'</span>';
+    } catch (Throwable $e) {
+      return '';
+    }
+  }
+}
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -104,6 +128,7 @@ textarea, input, select {
   display:flex; align-items:center; justify-content:center;
   font-size:1.8rem; font-weight:800; color:#fff;
 }
+.badge { user-select: none; }
 @media (max-width: 768px) {
   .btn-accent { width: 100%; justify-content: center; }
   .card-glass .text-end { text-align: center !important; }
@@ -156,7 +181,9 @@ textarea, input, select {
             <?php while($n = $notes->fetch_assoc()): ?>
               <div class="block">
                 <div><?= nl2br(h($n['contenu'])) ?></div>
-                <div class="text-end small-muted mt-1"><i class="bi bi-clock"></i> <?= h($n['date_creation']) ?></div>
+                <div class="text-end small-muted mt-1">
+                  <i class="bi bi-clock"></i> <?= h($n['date_creation']) ?>
+                </div>
               </div>
             <?php endwhile; ?>
           <?php else: ?>
@@ -165,7 +192,7 @@ textarea, input, select {
         </div>
         <form method="POST" action="index.php?page=ajouter_note">
           <input type="hidden" name="fiche_id" value="<?= $fiche['id'] ?>">
-          <textarea name="contenu" rows="3" class="form-control mb-2" placeholder="Ajouter une note..."></textarea>
+          <textarea name="contenu" rows="3" class="form-control mb-2" placeholder="Ajouter une note..." required></textarea>
           <button class="btn btn-accent w-100"><i class="bi bi-plus-lg"></i> Ajouter une note</button>
         </form>
       </section>
@@ -182,30 +209,75 @@ textarea, input, select {
       <!-- TACHES -->
       <section class="card-glass p-4">
         <h2 class="section-title"><i class="bi bi-list-check me-2"></i>Tâches</h2>
+
         <div class="scroll-zone mb-3">
           <?php if ($taches && $taches->num_rows > 0): ?>
             <?php while($t = $taches->fetch_assoc()): ?>
-              <div class="block d-flex justify-content-between align-items-start" id="task-<?= $t['id'] ?>">
-                <div>
-                  <div class="fw-semibold"><?= h($t['titre']) ?></div>
-                  <div class="small-muted"><?= nl2br(h($t['description'])) ?></div>
+              <div class="block d-flex justify-content-between align-items-start gap-3" id="task-<?= (int)$t['id'] ?>">
+                <div class="flex-grow-1">
+                  <div class="d-flex align-items-center gap-2 mb-1">
+                    <div class="fw-semibold"><?= h($t['titre']) ?></div>
+                    <?= format_due_label($t['date_echeance'] ?? null, $t['statut'] ?? null) ?>
+                    <?php if (!empty($t['statut'])): ?>
+                      <span class="badge <?= strtolower($t['statut']) === 'terminée' ? 'bg-success' : 'bg-primary' ?>">
+                        <?= h($t['statut']) ?>
+                      </span>
+                    <?php endif; ?>
+                  </div>
+                  <?php if (!empty($t['description'])): ?>
+                    <div class="small-muted"><?= nl2br(h($t['description'])) ?></div>
+                  <?php endif; ?>
+                  <div class="small-muted mt-1">
+                    <i class="bi bi-clock"></i>
+                    Créée le <?= h($t['date_creation']) ?>
+                    <?php if (!empty($t['date_echeance'])): ?>
+                      · <i class="bi bi-calendar3"></i> Échéance <?= h(date('d/m/Y', strtotime($t['date_echeance']))) ?>
+                    <?php endif; ?>
+                  </div>
                 </div>
-                <?php if (($t['statut'] ?? '') !== 'Terminée'): ?>
-                  <button class="btn btn-sm btn-success" onclick="terminerTache(<?= $t['id'] ?>)">Terminer</button>
-                <?php else: ?>
-                  <span class="badge bg-success">Terminée</span>
-                <?php endif; ?>
+
+                <div class="text-nowrap">
+                  <?php if (strtolower((string)$t['statut']) !== 'terminée'): ?>
+                    <button class="btn btn-sm btn-success" onclick="terminerTache(<?= (int)$t['id'] ?>)">
+                      <i class="bi bi-check2"></i> Terminer
+                    </button>
+                  <?php else: ?>
+                    <span class="badge bg-success"><i class="bi bi-check2-circle me-1"></i>Terminée</span>
+                  <?php endif; ?>
+                </div>
               </div>
             <?php endwhile; ?>
           <?php else: ?>
             <p class="text-center small-muted py-3">Aucune tâche enregistrée.</p>
           <?php endif; ?>
         </div>
+
+        <!-- FORM AJOUT TÂCHE -->
         <form method="POST" action="index.php?page=ajouter_tache">
-          <input type="hidden" name="fiche_id" value="<?= $fiche['id'] ?>">
+          <input type="hidden" name="fiche_id" value="<?= (int)$fiche['id'] ?>">
+
           <input type="text" name="titre" class="form-control mb-2" placeholder="Titre de la tâche" required>
           <textarea name="description" rows="2" class="form-control mb-2" placeholder="Description..."></textarea>
-          <button class="btn btn-accent w-100"><i class="bi bi-plus-lg"></i> Ajouter une tâche</button>
+
+          <div class="row g-2 mb-2">
+            <div class="col-12 col-md-6">
+              <label class="small-muted mb-1">Échéance</label>
+              <input type="date" name="date_echeance" class="form-control"
+                     value="<?= date('Y-m-d') ?>" min="<?= date('Y-m-d') ?>" required>
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="small-muted mb-1">Statut</label>
+              <select name="statut" class="form-select">
+                <option value="À faire">À faire</option>
+                <option value="En cours">En cours</option>
+                <option value="Terminée">Terminée</option>
+              </select>
+            </div>
+          </div>
+
+          <button class="btn btn-accent w-100">
+            <i class="bi bi-plus-lg"></i> Ajouter une tâche
+          </button>
         </form>
       </section>
     </div>
@@ -217,20 +289,30 @@ function terminerTache(id) {
   fetch('index.php?page=update_tache', {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: 'id=' + id
+    body: 'id=' + encodeURIComponent(id) + '&statut=' + encodeURIComponent('Terminée')
   })
   .then(r => r.text())
   .then(txt => {
     if (txt.trim() === 'success') {
-      const t = document.getElementById('task-' + id);
-      t.querySelector('button')?.remove();
-      t.insertAdjacentHTML('beforeend', '<span class="badge bg-success">Terminée</span>');
-    } else { alert('Erreur: ' + txt); }
-  });
+      const el = document.getElementById('task-' + id);
+      if (!el) return;
+      const btn = el.querySelector('button');
+      if (btn) btn.remove();
+      // Ajoute le badge Terminée s’il n’existe pas déjà
+      const badgeDone = document.createElement('span');
+      badgeDone.className = 'badge bg-success';
+      badgeDone.innerHTML = '<i class="bi bi-check2-circle me-1"></i>Terminée';
+      el.querySelector('.text-nowrap').appendChild(badgeDone);
+
+      // Met à jour l’étiquette d’échéance si besoin (on laisse tel quel ici)
+    } else {
+      alert('Erreur: ' + txt);
+    }
+  })
+  .catch(err => alert('Erreur réseau: ' + err));
 }
 </script>
 </body>
 </html>
-
 
 

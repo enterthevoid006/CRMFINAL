@@ -1,281 +1,186 @@
-<?php include __DIR__ . '/../sidebar.php'; ?>
-<?php function h($v){return htmlspecialchars((string)$v,ENT_QUOTES,'UTF-8');} ?>
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Ordex CRM — Tâches du jour</title>
+<title>Tâches — Ordex CRM</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
 <style>
-:root {
-  --bg: #0b1020;
-  --bg2: #10172a;
-  --card: rgba(255,255,255,0.05);
-  --border: rgba(255,255,255,0.1);
-  --text: #e5e7eb;
-  --muted: #9aa4b2;
-  --accent: #3b82f6;
-  --accent2: #0ea5e9;
-  --success: #10b981;
-  --warning: #f59e0b;
-  --danger: #ef4444;
-}
-
 body {
-  background: radial-gradient(900px at 80% 10%, rgba(59,130,246,.25), transparent 60%) ,
-              linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%);
-  color: var(--text);
-  font-family: 'Inter', sans-serif;
+  background: linear-gradient(180deg, #0b1020 0%, #10172a 100%);
+  color: #e5e7eb;
+  font-family: "Inter", sans-serif;
+  margin-left: 240px; /* espace pour la sidebar */
   min-height: 100vh;
-  overflow-x: hidden;
 }
+@media(max-width:768px) { body { margin-left: 0; padding-top: 80px; } }
 
-/* 📱 Cacher la sidebar sur mobile */
-@media (max-width: 768px) {
-  .ordex-sidebar {
-    display: none !important;
-  }
-}
-
-.topbar {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  background: rgba(10,16,35,0.7);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border);
-  box-shadow: 0 2px 10px rgba(0,0,0,0.4);
-}
-.topbar .inner {
+.container {
   max-width: 1100px;
-  margin: auto;
-  padding: 14px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.topbar h5 {
-  font-weight: 600;
-  color: var(--text);
-}
-.btn-ghost {
-  color: var(--text);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  transition: all .2s;
-  font-weight: 500;
-  background: transparent;
-}
-.btn-ghost:hover {
-  background: var(--accent);
-  color: #fff;
-  border-color: var(--accent);
+  padding: 2rem;
 }
 
-.wrap {
-  max-width: 1100px;
-  margin: 40px auto;
-  padding: 0 16px;
-}
-
-.panel {
+.section {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
   border-radius: 16px;
-  background: var(--card);
-  border: 1px solid var(--border);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-  padding: 28px;
-  backdrop-filter: blur(12px);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.35);
 }
 
-.task-card {
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 18px;
-  margin-bottom: 14px;
-  background: rgba(255,255,255,0.03);
+.section h2 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #0ea5e9;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  padding-bottom: .5rem;
+}
+
+.task {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-bottom: 10px;
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  transition: all .25s ease;
+  align-items: start;
+  gap: 10px;
+  transition: background .2s;
 }
-.task-card:hover {
-  transform: translateY(-2px);
-  border-color: var(--accent2);
-  background: rgba(255,255,255,0.06);
-}
+.task:hover { background: rgba(255,255,255,0.07); }
 
-.task-info strong {
-  font-size: 1rem;
-  color: var(--text);
-}
-.task-info small {
-  color: var(--muted);
-}
-
-.status-badge {
-  border-radius: 999px;
-  padding: .35rem .8rem;
-  font-size: .8rem;
+.task-title {
   font-weight: 600;
-  text-transform: capitalize;
-  border: 1px solid transparent;
+  margin-bottom: 4px;
 }
-.status-en-attente {
-  background: rgba(59,130,246,0.15);
-  color: var(--accent2);
-  border-color: rgba(59,130,246,0.3);
-}
-.status-en-cours {
-  background: rgba(245,158,11,0.15);
-  color: var(--warning);
-  border-color: rgba(245,158,11,0.3);
-}
-.status-terminée {
-  background: rgba(16,185,129,0.15);
-  color: var(--success);
-  border-color: rgba(16,185,129,0.3);
-}
-
-.btn-close-task {
-  background: transparent;
-  border: 1px solid var(--success);
-  color: var(--success);
-  border-radius: 8px;
-  padding: 6px 10px;
+.task-meta {
   font-size: .9rem;
-  font-weight: 500;
-  transition: all .25s;
+  color: #9aa4b2;
 }
-.btn-close-task:hover {
-  background: var(--success);
-  color: #fff;
-}
-.empty {
-  text-align: center;
-  padding: 60px 20px;
-  color: var(--muted);
-}
-.empty i {
-  font-size: 3rem;
-  opacity: .25;
-  display: block;
-  margin-bottom: 12px;
-}
+.badge-today { background: #facc15; color: #000; }
+.badge-late { background: #ef4444; }
+.badge-next { background: #3b82f6; }
+.btn-sm { padding: .25rem .5rem; font-size: .85rem; }
 
-.toast {
-  background: var(--accent);
-  color: #fff;
-  border: none;
-  border-radius: 12px;
-  box-shadow: 0 5px 20px rgba(0,0,0,0.3);
-  animation: fadeIn .4s ease;
-}
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: none; }
-}
-.fade-up {
-  animation: fadeUp .5s ease forwards;
-  opacity: 0;
-  transform: translateY(10px);
-}
-@keyframes fadeUp {
-  to { opacity: 1; transform: none; }
-}
 </style>
 </head>
-
 <body>
-  <div class="topbar">
-    <div class="inner">
-      <a href="index.php?page=pipeline" class="btn btn-sm btn-ghost"><i class="bi bi-kanban"></i> Pipeline</a>
-      <h5 class="m-0"><i class="bi bi-calendar2-event me-2"></i>Tâches du <?= date('d/m/Y') ?></h5>
-      <a href="index.php?page=dashboard" class="btn btn-sm btn-ghost"><i class="bi bi-speedometer2"></i> Tableau de bord</a>
-    </div>
-  </div>
 
-  <div class="wrap fade-up">
-    <div class="panel">
-      <?php if (count($taches) > 0): ?>
-        <?php foreach ($taches as $t): ?>
-          <div class="task-card" data-id="<?= $t['id'] ?>">
-            <div class="task-info">
-              <strong><?= h($t['titre']) ?></strong><br>
-              <small><?= nl2br(h($t['description'])) ?></small><br>
-              <small><i class="bi bi-person-circle me-1"></i><?= h($t['prenom'].' '.$t['nom']) ?></small>
-            </div>
-            <div class="d-flex align-items-center gap-2">
-              <span class="status-badge status-<?= strtolower(str_replace(' ', '-', $t['statut'])) ?>">
-                <?= h($t['statut']) ?>
-              </span>
-              <?php if (strtolower($t['statut']) !== 'terminée'): ?>
-                <button class="btn-close-task" title="Clôturer cette tâche">
-                  <i class="bi bi-check2-circle"></i>
-                </button>
-              <?php endif; ?>
+<div class="container">
+  <h1 class="mb-4"><i class="bi bi-list-check me-2"></i>Mes tâches</h1>
+
+  <!-- 🔸 Tâches du jour -->
+  <section class="section">
+    <h2><i class="bi bi-calendar-day me-2"></i>Tâches du jour</h2>
+    <?php if (!empty($tachesJour)): ?>
+      <?php foreach ($tachesJour as $t): ?>
+        <div class="task" id="task-<?= (int)$t['id'] ?>">
+          <div>
+            <div class="task-title"><?= htmlspecialchars($t['titre']) ?></div>
+            <div class="task-meta">
+              <?= htmlspecialchars($t['prenom'].' '.$t['nom']) ?> —
+              Échéance : <span class="badge badge-today">Aujourd’hui</span>
+              <?php if (!empty($t['description'])): ?><br><?= nl2br(htmlspecialchars($t['description'])) ?><?php endif; ?>
             </div>
           </div>
-        <?php endforeach; ?>
-      <?php else: ?>
-        <div class="empty">
-          <i class="bi bi-calendar-x"></i>
-          <p>Aucune tâche prévue pour aujourd’hui.<br><strong>Profite pour organiser ta journée sereinement.</strong></p>
+          <div>
+            <?php if (strtolower($t['statut']) !== 'terminée'): ?>
+              <button class="btn btn-success btn-sm" onclick="terminerTache(<?= (int)$t['id'] ?>)">
+                <i class="bi bi-check2"></i>
+              </button>
+            <?php else: ?>
+              <span class="badge bg-success">Terminée</span>
+            <?php endif; ?>
+          </div>
         </div>
-      <?php endif; ?>
-    </div>
-  </div>
+      <?php endforeach; ?>
+    <?php else: ?>
+      <p class="text-muted">Aucune tâche prévue aujourd’hui.</p>
+    <?php endif; ?>
+  </section>
 
-  <!-- Toast -->
-  <div class="position-fixed bottom-0 end-0 p-3" style="z-index:1100">
-    <div id="toast" class="toast align-items-center text-bg-primary border-0" role="alert">
-      <div class="d-flex">
-        <div class="toast-body fw-semibold">
-          <i class="bi bi-check2-circle me-2"></i>Tâche clôturée avec succès.
+  <!-- 🔸 Tâches à venir -->
+  <section class="section">
+    <h2><i class="bi bi-calendar-event me-2"></i>Tâches à venir</h2>
+    <?php if (!empty($tachesAVenir)): ?>
+      <?php foreach ($tachesAVenir as $t): ?>
+        <div class="task" id="task-<?= (int)$t['id'] ?>">
+          <div>
+            <div class="task-title"><?= htmlspecialchars($t['titre']) ?></div>
+            <div class="task-meta">
+              <?= htmlspecialchars($t['prenom'].' '.$t['nom']) ?> —
+              <span class="badge badge-next"><?= date('d/m/Y', strtotime($t['date_echeance'])) ?></span>
+              <?php if (!empty($t['description'])): ?><br><?= nl2br(htmlspecialchars($t['description'])) ?><?php endif; ?>
+            </div>
+          </div>
+          <div>
+            <?php if (strtolower($t['statut']) !== 'terminée'): ?>
+              <button class="btn btn-success btn-sm" onclick="terminerTache(<?= (int)$t['id'] ?>)">
+                <i class="bi bi-check2"></i>
+              </button>
+            <?php else: ?>
+              <span class="badge bg-success">Terminée</span>
+            <?php endif; ?>
+          </div>
         </div>
-        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-      </div>
-    </div>
-  </div>
+      <?php endforeach; ?>
+    <?php else: ?>
+      <p class="text-muted">Aucune tâche à venir.</p>
+    <?php endif; ?>
+  </section>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
-  const toastEl = document.getElementById('toast');
-  const toast = new bootstrap.Toast(toastEl, { delay: 2500 });
+  <!-- 🔸 Tâches passées -->
+  <section class="section">
+    <h2><i class="bi bi-clock-history me-2"></i>Tâches passées</h2>
+    <?php if (!empty($tachesPassees)): ?>
+      <?php foreach ($tachesPassees as $t): ?>
+        <div class="task" id="task-<?= (int)$t['id'] ?>">
+          <div>
+            <div class="task-title"><?= htmlspecialchars($t['titre']) ?></div>
+            <div class="task-meta">
+              <?= htmlspecialchars($t['prenom'].' '.$t['nom']) ?> —
+              <span class="badge badge-late"><?= date('d/m/Y', strtotime($t['date_echeance'])) ?></span>
+              <?php if (!empty($t['description'])): ?><br><?= nl2br(htmlspecialchars($t['description'])) ?><?php endif; ?>
+            </div>
+          </div>
+          <div>
+            <?php if (strtolower($t['statut']) !== 'terminée'): ?>
+              <button class="btn btn-success btn-sm" onclick="terminerTache(<?= (int)$t['id'] ?>)">
+                <i class="bi bi-check2"></i>
+              </button>
+            <?php else: ?>
+              <span class="badge bg-success">Terminée</span>
+            <?php endif; ?>
+          </div>
+        </div>
+      <?php endforeach; ?>
+    <?php else: ?>
+      <p class="text-muted">Aucune tâche passée.</p>
+    <?php endif; ?>
+  </section>
+</div>
 
-  document.querySelectorAll('.btn-close-task').forEach(btn => {
-    btn.addEventListener('click', async () => {
-      const card = btn.closest('.task-card');
-      const id = card.dataset.id;
+<script>
+function terminerTache(id) {
+  fetch('index.php?page=update_tache', {
+    method: 'POST',
+    headers: {'Content-Type':'application/x-www-form-urlencoded'},
+    body: 'id=' + encodeURIComponent(id)
+  })
+  .then(r => r.text())
+  .then(txt => {
+    if (txt.trim() === 'success') location.reload();
+    else alert('Erreur: ' + txt);
+  })
+  .catch(err => alert('Erreur réseau: ' + err));
+}
+</script>
 
-      btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
-      btn.disabled = true;
-
-      const res = await fetch('index.php?page=update_tache', {
-        method: 'POST',
-        headers: {'Content-Type':'application/x-www-form-urlencoded'},
-        body: 'id=' + id
-      });
-      const text = await res.text();
-
-      if (text.trim() === 'success') {
-        const badge = card.querySelector('.status-badge');
-        badge.textContent = 'Terminée';
-        badge.className = 'status-badge status-terminée';
-        btn.remove();
-        toast.show();
-      } else {
-        alert('Erreur : ' + text);
-        btn.innerHTML = '<i class="bi bi-check2-circle"></i>';
-        btn.disabled = false;
-      }
-    });
-  });
-  </script>
 </body>
 </html>
-
 
