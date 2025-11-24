@@ -16,6 +16,7 @@
       align-items: center;
       font-family: "Inter", sans-serif;
       color: #212529;
+      padding: 20px;
     }
 
     .card {
@@ -23,8 +24,10 @@
       width: 100%;
       border: none;
       border-radius: 1rem;
+      padding: 2rem;
       box-shadow: 0 10px 30px rgba(0,0,0,0.08);
       animation: fadeIn 0.6s ease-out;
+      background: #ffffff;
     }
 
     @keyframes fadeIn {
@@ -43,7 +46,8 @@
       margin-right: 6px;
     }
 
-    .form-control:focus {
+    .form-control:focus,
+    .form-select:focus {
       border-color: #0d6efd;
       box-shadow: 0 0 0 0.15rem rgba(13,110,253,.25);
     }
@@ -71,52 +75,78 @@
 
 <body>
 
-  <div class="card p-4 mb-4">
+  <div class="card mb-4">
     <h2 class="text-center mb-4">
-      <i class="bi bi-person-lines-fill me-2"></i>Créer une fiche contact
+      <i class="bi bi-person-lines-fill me-2"></i>
+      Créer une fiche contact
     </h2>
 
+    <!-- FORMULAIRE -->
     <form action="index.php?page=creer_contact" method="POST">
-      <!-- le reste inchangé -->
+
+      <!-- 🔥 Pipeline actif transmis automatiquement -->
+      <input type="hidden" name="pipeline_id" value="<?= $_GET['pipeline_id'] ?? 1 ?>">
+
+      <!-- ======= Informations personnelles ======= -->
       <div class="section-title">Informations personnelles</div>
+
       <div class="row">
         <div class="col-md-6 mb-3">
-          <label class="form-label"><i class="bi bi-person-fill"></i>Nom</label>
+          <label class="form-label">
+            <i class="bi bi-person-fill"></i>Nom
+          </label>
           <input type="text" name="nom" class="form-control" placeholder="Dupont" required>
         </div>
+
         <div class="col-md-6 mb-3">
-          <label class="form-label"><i class="bi bi-person"></i>Prénom</label>
+          <label class="form-label">
+            <i class="bi bi-person"></i>Prénom
+          </label>
           <input type="text" name="prenom" class="form-control" placeholder="Marie" required>
         </div>
       </div>
 
       <div class="row">
         <div class="col-md-6 mb-3">
-          <label class="form-label"><i class="bi bi-envelope-fill"></i>Email</label>
+          <label class="form-label">
+            <i class="bi bi-envelope-fill"></i>Email
+          </label>
           <input type="email" name="email" class="form-control" placeholder="exemple@email.com" required>
         </div>
+
         <div class="col-md-6 mb-3">
-          <label class="form-label"><i class="bi bi-telephone-fill"></i>Téléphone</label>
+          <label class="form-label">
+            <i class="bi bi-telephone-fill"></i>Téléphone
+          </label>
           <input type="tel" name="telephone" class="form-control" placeholder="06 12 34 56 78">
         </div>
       </div>
 
+      <!-- ======= Informations professionnelles ======= -->
       <div class="form-section">
         <div class="section-title">Informations professionnelles</div>
+
         <div class="row">
           <div class="col-md-6 mb-3">
-            <label class="form-label"><i class="bi bi-briefcase-fill"></i>Profession</label>
+            <label class="form-label">
+              <i class="bi bi-briefcase-fill"></i>Profession
+            </label>
             <input type="text" name="profession" class="form-control" placeholder="Avocat, artisan..." required>
           </div>
+
           <div class="col-md-6 mb-3">
-            <label class="form-label"><i class="bi bi-building"></i>Société</label>
+            <label class="form-label">
+              <i class="bi bi-building"></i>Société
+            </label>
             <input type="text" name="societe" class="form-control" placeholder="Nom de l’entreprise">
           </div>
         </div>
 
         <div class="row">
           <div class="col-md-6 mb-3">
-            <label class="form-label"><i class="bi bi-diagram-3-fill"></i>Statut</label>
+            <label class="form-label">
+              <i class="bi bi-diagram-3-fill"></i>Statut
+            </label>
             <select name="statut" class="form-select" required>
               <option value="Prospect">Prospect</option>
               <option value="En cours">En cours</option>
@@ -124,8 +154,11 @@
               <option value="Perdu">Perdu</option>
             </select>
           </div>
+
           <div class="col-md-6 mb-3">
-            <label class="form-label"><i class="bi bi-globe"></i>Origine du contact</label>
+            <label class="form-label">
+              <i class="bi bi-globe"></i>Origine du contact
+            </label>
             <select name="origine" class="form-select">
               <option value="Site web">Site web</option>
               <option value="Réseau">Réseau</option>
@@ -136,22 +169,27 @@
         </div>
       </div>
 
+      <!-- ======= Notes ======= -->
       <div class="form-section">
         <div class="section-title">Notes et remarques</div>
+
         <div class="mb-3">
-          <label class="form-label"><i class="bi bi-journal-text"></i>Notes</label>
+          <label class="form-label">
+            <i class="bi bi-journal-text"></i>Notes
+          </label>
           <textarea name="notes" class="form-control" rows="3" placeholder="Ajoutez des détails, préférences, historique..."></textarea>
         </div>
       </div>
 
+      <!-- ======= Bouton ======= -->
       <div class="d-grid mt-4">
         <button type="submit" class="btn btn-primary py-2">
           <i class="bi bi-save me-1"></i> Enregistrer la fiche
         </button>
       </div>
+
     </form>
   </div>
 
 </body>
 </html>
-

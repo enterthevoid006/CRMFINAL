@@ -1,5 +1,6 @@
 <?php
 class CreerContactModel {
+
     private $conn;
 
     public function __construct($conn) {
@@ -7,13 +8,26 @@ class CreerContactModel {
     }
 
     public function ajouterFiche($data) {
+
         $stmt = $this->conn->prepare("
-            INSERT INTO fiches (nom, prenom, email, telephone, profession, societe, statut, origine, date_creation)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())
+            INSERT INTO fiches (
+                nom,
+                prenom,
+                email,
+                telephone,
+                profession,
+                societe,
+                statut,
+                origine,
+                pipeline_id,
+                date_creation
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
         ");
 
+        // 9 valeurs → donc 9 types
         $stmt->bind_param(
-            "ssssssss",
+            "ssssssssi",   // ✔️ FIX : 9 caractères, pas 10
             $data['nom'],
             $data['prenom'],
             $data['email'],
@@ -21,20 +35,22 @@ class CreerContactModel {
             $data['profession'],
             $data['societe'],
             $data['statut'],
-            $data['origine']
+            $data['origine'],
+            $data['pipeline_id']
         );
 
         if ($stmt->execute()) {
+
             $fiche_id = $stmt->insert_id;
 
-            // 🔹 Si des notes ont été ajoutées, on les insère dans la table notes
+            // 🔹 Notes
             if (!empty($data['notes'])) {
-                $noteStmt = $this->conn->prepare("
+                $note = $this->conn->prepare("
                     INSERT INTO notes (fiche_id, contenu, date_creation)
                     VALUES (?, ?, NOW())
                 ");
-                $noteStmt->bind_param("is", $fiche_id, $data['notes']);
-                $noteStmt->execute();
+                $note->bind_param("is", $fiche_id, $data['notes']);
+                $note->execute();
             }
 
             return $fiche_id;

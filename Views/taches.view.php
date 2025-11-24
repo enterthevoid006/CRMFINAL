@@ -8,75 +8,119 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
 <style>
+/* ====== BASE ====== */
 body {
   background: linear-gradient(180deg, #0b1020 0%, #10172a 100%);
   color: #e5e7eb;
   font-family: "Inter", sans-serif;
-  margin-left: 240px; /* espace pour la sidebar */
+  margin-left: 240px;
   min-height: 100vh;
 }
 @media(max-width:768px) { body { margin-left: 0; padding-top: 80px; } }
 
 .container {
-  max-width: 1100px;
+  max-width: 1200px;
   padding: 2rem;
 }
 
-.section {
-  background: rgba(255,255,255,0.05);
+/* ====== FILTER BAR ====== */
+.filter-bar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 25px;
+  padding: 12px;
+  background: rgba(255,255,255,0.04);
   border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 16px;
-  padding: 1.5rem;
-  margin-bottom: 2rem;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.35);
+  border-radius: 14px;
+  backdrop-filter: blur(6px);
 }
 
-.section h2 {
+.filter-btn {
+  padding: 8px 18px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.06);
+  color: #e5e7eb;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.filter-btn:hover {
+  background: rgba(255,255,255,0.12);
+}
+.filter-btn.active {
+  background: #0ea5e9;
+  border-color: #0ea5e9;
+  color: #fff;
+}
+
+/* ====== SECTIONS ====== */
+.section {
+  margin-bottom: 2rem;
+}
+
+.section-title {
   font-size: 1.2rem;
   font-weight: 600;
   color: #0ea5e9;
   margin-bottom: 1rem;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
-  padding-bottom: .5rem;
 }
 
+/* ====== TASK CARDS ====== */
 .task {
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 10px;
-  padding: 12px 16px;
-  margin-bottom: 10px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
   display: flex;
   justify-content: space-between;
-  align-items: start;
   gap: 10px;
-  transition: background .2s;
+  transition: background .2s, transform .2s;
 }
-.task:hover { background: rgba(255,255,255,0.07); }
+.task:hover {
+  background: rgba(255,255,255,0.08);
+  transform: translateY(-2px);
+}
 
 .task-title {
   font-weight: 600;
-  margin-bottom: 4px;
+  font-size: 1rem;
 }
 .task-meta {
   font-size: .9rem;
-  color: #9aa4b2;
+  color: #94a3b8;
 }
-.badge-today { background: #facc15; color: #000; }
-.badge-late { background: #ef4444; }
-.badge-next { background: #3b82f6; }
-.btn-sm { padding: .25rem .5rem; font-size: .85rem; }
+
+/* Badges */
+.badge-today {
+  background: #facc15; color: #000;
+}
+.badge-late {
+  background: #ef4444;
+}
+.badge-next {
+  background: #3b82f6;
+}
 
 </style>
 </head>
 <body>
 
 <div class="container">
+
   <h1 class="mb-4"><i class="bi bi-list-check me-2"></i>Mes tâches</h1>
 
+  <!-- 🔥 FILTER BAR -->
+  <div class="filter-bar">
+    <button class="filter-btn active" data-filter="today">Aujourd’hui</button>
+    <button class="filter-btn" data-filter="upcoming">À venir</button>
+    <button class="filter-btn" data-filter="past">Passées</button>
+    <button class="filter-btn" data-filter="all">Toutes</button>
+  </div>
+
   <!-- 🔸 Tâches du jour -->
-  <section class="section">
-    <h2><i class="bi bi-calendar-day me-2"></i>Tâches du jour</h2>
+  <section class="section" data-section="today">
+    <div class="section-title"><i class="bi bi-calendar-day me-2"></i>Tâches du jour</div>
     <?php if (!empty($tachesJour)): ?>
       <?php foreach ($tachesJour as $t): ?>
         <div class="task" id="task-<?= (int)$t['id'] ?>">
@@ -84,7 +128,7 @@ body {
             <div class="task-title"><?= htmlspecialchars($t['titre']) ?></div>
             <div class="task-meta">
               <?= htmlspecialchars($t['prenom'].' '.$t['nom']) ?> —
-              Échéance : <span class="badge badge-today">Aujourd’hui</span>
+              <span class="badge badge-today">Aujourd’hui</span>
               <?php if (!empty($t['description'])): ?><br><?= nl2br(htmlspecialchars($t['description'])) ?><?php endif; ?>
             </div>
           </div>
@@ -105,8 +149,8 @@ body {
   </section>
 
   <!-- 🔸 Tâches à venir -->
-  <section class="section">
-    <h2><i class="bi bi-calendar-event me-2"></i>Tâches à venir</h2>
+  <section class="section" data-section="upcoming" style="display:none;">
+    <div class="section-title"><i class="bi bi-calendar-event me-2"></i>Tâches à venir</div>
     <?php if (!empty($tachesAVenir)): ?>
       <?php foreach ($tachesAVenir as $t): ?>
         <div class="task" id="task-<?= (int)$t['id'] ?>">
@@ -135,8 +179,8 @@ body {
   </section>
 
   <!-- 🔸 Tâches passées -->
-  <section class="section">
-    <h2><i class="bi bi-clock-history me-2"></i>Tâches passées</h2>
+  <section class="section" data-section="past" style="display:none;">
+    <div class="section-title"><i class="bi bi-clock-history me-2"></i>Tâches passées</div>
     <?php if (!empty($tachesPassees)): ?>
       <?php foreach ($tachesPassees as $t): ?>
         <div class="task" id="task-<?= (int)$t['id'] ?>">
@@ -163,9 +207,29 @@ body {
       <p class="text-muted">Aucune tâche passée.</p>
     <?php endif; ?>
   </section>
+
 </div>
 
 <script>
+/* ====== FILTER JS ====== */
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const filter = btn.dataset.filter;
+
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    if (filter === "all") {
+      document.querySelectorAll('[data-section]').forEach(sec => sec.style.display = "block");
+    } else {
+      document.querySelectorAll('[data-section]').forEach(sec => {
+        sec.style.display = sec.dataset.section === filter ? "block" : "none";
+      });
+    }
+  });
+});
+
+/* ====== API terminer tâche ====== */
 function terminerTache(id) {
   fetch('index.php?page=update_tache', {
     method: 'POST',
@@ -176,8 +240,7 @@ function terminerTache(id) {
   .then(txt => {
     if (txt.trim() === 'success') location.reload();
     else alert('Erreur: ' + txt);
-  })
-  .catch(err => alert('Erreur réseau: ' + err));
+  });
 }
 </script>
 

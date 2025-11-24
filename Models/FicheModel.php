@@ -106,5 +106,20 @@ class FicheModel {
         $stmt->execute();
         return $stmt->get_result();
     }
+
+    /* ────────────────────────────────────────────────
+       🔹 METTRE À JOUR LE STAGE / STATUT PIPELINE
+    ──────────────────────────────────────────────── */
+    public function updateStage($id, $stage) {
+        $stmt = $this->conn->prepare("
+            UPDATE fiches 
+            SET statut = ? 
+            WHERE id = ?
+        ");
+        $stmt->bind_param("si", $stage, $id);
+        return $stmt->execute();
+    }
 }
+
+
 

@@ -13,7 +13,7 @@ $currentPage = $_GET['page'] ?? 'dashboard';
     <a href="index.php?page=dashboard" class="brand-link">
       <div class="brand-logo">OX</div>
       <div class="brand-text">
-        <strong>Ordex</strong><span>CRM</span>
+        <strong>Bonjour</strong><span>CRM</span>
       </div>
     </a>
     <button class="sb-toggle" type="button" aria-label="Réduire le menu">
