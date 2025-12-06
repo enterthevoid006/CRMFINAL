@@ -217,7 +217,7 @@ textarea, input, select {
       <!-- DOCUMENTS -->
       <section class="card-glass p-4">
         <h2 class="section-title"><i class="bi bi-folder2-open me-2"></i>Documents</h2>
-        <p class="text-center small-muted py-3">📂 Fonctionnalité prochainement…</p>
+        <p class="text-center small-muted py-3">📂 Importer un document PDF Images Vidéos Mails…</p>
       </section>
 
     </div>

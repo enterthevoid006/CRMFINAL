@@ -118,21 +118,28 @@ body {
     <button class="filter-btn" data-filter="all">Toutes</button>
   </div>
 
-  <!-- 🔸 Tâches du jour -->
+  <!-- ==============================================================
+      🔸 SECTION : TÂCHES DU JOUR
+  ============================================================== -->
   <section class="section" data-section="today">
     <div class="section-title"><i class="bi bi-calendar-day me-2"></i>Tâches du jour</div>
+
     <?php if (!empty($tachesJour)): ?>
       <?php foreach ($tachesJour as $t): ?>
         <div class="task" id="task-<?= (int)$t['id'] ?>">
+
           <div>
             <div class="task-title"><?= htmlspecialchars($t['titre']) ?></div>
             <div class="task-meta">
-              <?= htmlspecialchars($t['prenom'].' '.$t['nom']) ?> —
+              <?= htmlspecialchars($t['prenom']." ".$t['nom']) ?> —
               <span class="badge badge-today">Aujourd’hui</span>
-              <?php if (!empty($t['description'])): ?><br><?= nl2br(htmlspecialchars($t['description'])) ?><?php endif; ?>
+              <?php if ($t['description']): ?><br><?= nl2br(htmlspecialchars($t['description'])) ?><?php endif; ?>
             </div>
           </div>
-          <div>
+
+          <div class="d-flex gap-2">
+
+            <!-- terminer -->
             <?php if (strtolower($t['statut']) !== 'terminée'): ?>
               <button class="btn btn-success btn-sm" onclick="terminerTache(<?= (int)$t['id'] ?>)">
                 <i class="bi bi-check2"></i>
@@ -140,6 +147,12 @@ body {
             <?php else: ?>
               <span class="badge bg-success">Terminée</span>
             <?php endif; ?>
+
+            <!-- supprimer -->
+            <button class="btn btn-danger btn-sm" onclick="supprimerTache(<?= (int)$t['id'] ?>)">
+              <i class="bi bi-trash"></i>
+            </button>
+
           </div>
         </div>
       <?php endforeach; ?>
@@ -148,21 +161,27 @@ body {
     <?php endif; ?>
   </section>
 
-  <!-- 🔸 Tâches à venir -->
+
+  <!-- ==============================================================
+      🔸 SECTION : TÂCHES À VENIR
+  ============================================================== -->
   <section class="section" data-section="upcoming" style="display:none;">
     <div class="section-title"><i class="bi bi-calendar-event me-2"></i>Tâches à venir</div>
+
     <?php if (!empty($tachesAVenir)): ?>
       <?php foreach ($tachesAVenir as $t): ?>
         <div class="task" id="task-<?= (int)$t['id'] ?>">
+
           <div>
             <div class="task-title"><?= htmlspecialchars($t['titre']) ?></div>
             <div class="task-meta">
-              <?= htmlspecialchars($t['prenom'].' '.$t['nom']) ?> —
+              <?= htmlspecialchars($t['prenom']." ".$t['nom']) ?> —
               <span class="badge badge-next"><?= date('d/m/Y', strtotime($t['date_echeance'])) ?></span>
-              <?php if (!empty($t['description'])): ?><br><?= nl2br(htmlspecialchars($t['description'])) ?><?php endif; ?>
+              <?php if ($t['description']): ?><br><?= nl2br(htmlspecialchars($t['description'])) ?><?php endif; ?>
             </div>
           </div>
-          <div>
+
+          <div class="d-flex gap-2">
             <?php if (strtolower($t['statut']) !== 'terminée'): ?>
               <button class="btn btn-success btn-sm" onclick="terminerTache(<?= (int)$t['id'] ?>)">
                 <i class="bi bi-check2"></i>
@@ -170,7 +189,12 @@ body {
             <?php else: ?>
               <span class="badge bg-success">Terminée</span>
             <?php endif; ?>
+
+            <button class="btn btn-danger btn-sm" onclick="supprimerTache(<?= (int)$t['id'] ?>)">
+              <i class="bi bi-trash"></i>
+            </button>
           </div>
+
         </div>
       <?php endforeach; ?>
     <?php else: ?>
@@ -178,21 +202,27 @@ body {
     <?php endif; ?>
   </section>
 
-  <!-- 🔸 Tâches passées -->
+
+  <!-- ==============================================================
+      🔸 SECTION : TÂCHES PASSÉES
+  ============================================================== -->
   <section class="section" data-section="past" style="display:none;">
     <div class="section-title"><i class="bi bi-clock-history me-2"></i>Tâches passées</div>
+
     <?php if (!empty($tachesPassees)): ?>
       <?php foreach ($tachesPassees as $t): ?>
         <div class="task" id="task-<?= (int)$t['id'] ?>">
+
           <div>
             <div class="task-title"><?= htmlspecialchars($t['titre']) ?></div>
             <div class="task-meta">
-              <?= htmlspecialchars($t['prenom'].' '.$t['nom']) ?> —
+              <?= htmlspecialchars($t['prenom']." ".$t['nom']) ?> —
               <span class="badge badge-late"><?= date('d/m/Y', strtotime($t['date_echeance'])) ?></span>
-              <?php if (!empty($t['description'])): ?><br><?= nl2br(htmlspecialchars($t['description'])) ?><?php endif; ?>
+              <?php if ($t['description']): ?><br><?= nl2br(htmlspecialchars($t['description'])) ?><?php endif; ?>
             </div>
           </div>
-          <div>
+
+          <div class="d-flex gap-2">
             <?php if (strtolower($t['statut']) !== 'terminée'): ?>
               <button class="btn btn-success btn-sm" onclick="terminerTache(<?= (int)$t['id'] ?>)">
                 <i class="bi bi-check2"></i>
@@ -200,7 +230,12 @@ body {
             <?php else: ?>
               <span class="badge bg-success">Terminée</span>
             <?php endif; ?>
+
+            <button class="btn btn-danger btn-sm" onclick="supprimerTache(<?= (int)$t['id'] ?>)">
+              <i class="bi bi-trash"></i>
+            </button>
           </div>
+
         </div>
       <?php endforeach; ?>
     <?php else: ?>
@@ -210,10 +245,16 @@ body {
 
 </div>
 
+
+<!-- ==============================================================
+     🔥  SCRIPT JS
+============================================================== -->
 <script>
+
 /* ====== FILTER JS ====== */
 document.querySelectorAll('.filter-btn').forEach(btn => {
   btn.addEventListener('click', () => {
+
     const filter = btn.dataset.filter;
 
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -223,11 +264,13 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
       document.querySelectorAll('[data-section]').forEach(sec => sec.style.display = "block");
     } else {
       document.querySelectorAll('[data-section]').forEach(sec => {
-        sec.style.display = sec.dataset.section === filter ? "block" : "none";
+        sec.style.display = (sec.dataset.section === filter) ? "block" : "none";
       });
     }
+
   });
 });
+
 
 /* ====== API terminer tâche ====== */
 function terminerTache(id) {
@@ -242,8 +285,30 @@ function terminerTache(id) {
     else alert('Erreur: ' + txt);
   });
 }
+
+
+/* ====== API supprimer tâche ====== */
+function supprimerTache(id) {
+
+  if (!confirm("Supprimer définitivement cette tâche ?")) return;
+
+  fetch('index.php?page=delete_tache', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+    body: 'id=' + encodeURIComponent(id)
+  })
+  .then(r => r.text())
+  .then(txt => {
+    if (txt.trim() === "success") {
+      document.getElementById("task-" + id).remove();
+    } else {
+      alert("Erreur: " + txt);
+    }
+  });
+
+}
+
 </script>
 
 </body>
 </html>
-
